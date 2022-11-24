@@ -8,7 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import shop.mtcoding.bank.config.enums.UserEnum;
-import shop.mtcoding.bank.handler.LoginHandler;
+import shop.mtcoding.bank.handler.CustomLoginHandler;
 
 // SecurityFilterChain
 // jwt 필터로 거르고 security 필터 걸러서 ds 들어옴
@@ -16,7 +16,7 @@ import shop.mtcoding.bank.handler.LoginHandler;
 public class SecurityConfig {
 
   @Autowired
-  private LoginHandler loginHandler;
+  private CustomLoginHandler customLoginHandler;
   // config 에서는 autowired 사용하기
 
   @Bean
@@ -52,8 +52,8 @@ public class SecurityConfig {
         .passwordParameter("password")
         .loginProcessingUrl("/api/login") // /api/login 으로 가면 스프링 security 로그인폼
         // 기본 디폴트는 user, 제공되는 password 로만 가능 -> 로그인 process 커스텀해줘야함
-        .successHandler(loginHandler)
-        .failureHandler(loginHandler); // 로그인 성공, 실패 시
+        .successHandler(customLoginHandler)
+        .failureHandler(customLoginHandler); // 로그인 성공, 실패 시
 
     return http.build();
   }

@@ -12,19 +12,22 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import shop.mtcoding.bank.config.exception.CustomApiException;
+
 @Component // 싱글톤으로 컨테이너에 등록 - DI 해서 사용
-public class LoginHandler implements AuthenticationSuccessHandler, AuthenticationFailureHandler {
+public class CustomLoginHandler implements AuthenticationSuccessHandler, AuthenticationFailureHandler {
 
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
       Authentication authentication) throws IOException, ServletException {
-
+    System.out.println("로그인이 성공하였습니다.");
   }
 
   @Override
   public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
       AuthenticationException exception) throws IOException, ServletException {
-
+    System.out.println("로그인이 실패하였습니다.");
+    throw new CustomApiException("로그인 실패", 0);
   }
 
 }
