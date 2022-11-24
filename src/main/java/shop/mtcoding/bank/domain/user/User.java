@@ -26,7 +26,7 @@ public class User extends AudingTime {
   private Long id;
   @Column(unique = true, nullable = false, length = 20)
   private String username;
-  @Column(nullable = false, length = 20)
+  @Column(nullable = false, length = 60)
   private String password;
   @Column(nullable = false, length = 50)
   private String email;
