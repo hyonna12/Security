@@ -55,13 +55,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException failed) throws IOException, ServletException {
-
-        CustomResponseUtil.fail(response, "로그인 실패");
-    }
-
-    @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
             Authentication authResult) throws IOException, ServletException {
         log.debug("디버그 : successfulAuthentication 요청됨");
@@ -77,6 +70,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // 4. 토큰 담아서 성공 응답하기
         LoginRespDto loginRespDto = new LoginRespDto(loginUser.getUser());
         CustomResponseUtil.success(response, loginRespDto);
+    }
+
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException failed) throws IOException, ServletException {
+        log.debug("디버그 : unsuccessfulAuthentication 요청됨");
+        CustomResponseUtil.fail(response, "로그인 실패");
     }
 
 }

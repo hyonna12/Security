@@ -1,5 +1,7 @@
 package shop.mtcoding.bank.web;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,22 +22,20 @@ import shop.mtcoding.bank.service.UserService;
 @RequestMapping("/api")
 @RestController
 public class UserApiController {
-
+  private final Logger log = LoggerFactory.getLogger(getClass());
   private final UserService userService;
 
-  // @GetMapping("/user/session")
-  // public String userSession(@AuthenticationPrincipal LoginUser loginUser) {
-  // return "username : " + loginUser.getUsername();
-  // } // 페이지 들어가려면 인증 필요한데 세션값을 넣어줌
-
-  @PostMapping("/join")
-  public ResponseEntity<?> join(@RequestBody JoinReqDto joinReqDto) {
-    JoinRespDto joinResepDto = userService.회원가입(joinReqDto);
-    return new ResponseEntity<>(new ResponseDto<>("회원가입 성공", joinResepDto), HttpStatus.CREATED);
-  }
-
+  // 인증이 필요한 페이지
   @GetMapping("/user/session")
   public String userSession(@AuthenticationPrincipal LoginUser loginUser) {
     return "username : " + loginUser.getUsername();
   }
+
+  @PostMapping("/join")
+  public ResponseEntity<?> join(@RequestBody JoinReqDto joinReqDto) {
+    log.debug("디버그 : UserApiController join 실행됨");
+    JoinRespDto joinResepDto = userService.회원가입(joinReqDto);
+    return new ResponseEntity<>(new ResponseDto<>("회원가입 성공", joinResepDto), HttpStatus.CREATED);
+  }
+
 }
