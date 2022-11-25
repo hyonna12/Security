@@ -1,7 +1,6 @@
 package shop.mtcoding.bank.config.jwt;
 
 import java.io.IOException;
-import java.util.Date;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -17,20 +16,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import shop.mtcoding.bank.config.auth.LoginUser;
-import shop.mtcoding.bank.dto.ResponseDto;
 import shop.mtcoding.bank.dto.UserReqDto.LoginReqDto;
 import shop.mtcoding.bank.dto.UserRespDto.LoginRespDto;
 import shop.mtcoding.bank.util.CustomResponseUtil;
 
-/*
-*   /api/user/**, /api/account/**, /api/transaction/**, /api/admin/**
-*   위 주소일때만 동작해야함.
- */
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
