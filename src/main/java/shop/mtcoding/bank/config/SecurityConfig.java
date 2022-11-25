@@ -1,19 +1,32 @@
 package shop.mtcoding.bank.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import shop.mtcoding.bank.config.enums.UserEnum;
+import shop.mtcoding.bank.config.jwt.JwtAuthenticationFilter;
+import shop.mtcoding.bank.config.jwt.JwtAuthorizationFilter;
+import shop.mtcoding.bank.domain.user.UserRepository;
 import shop.mtcoding.bank.handler.CustomLoginHandler;
 
 // SecurityFilterChain
 // jwt 필터로 거르고 security 필터 걸러서 ds 들어옴
 @Configuration
 public class SecurityConfig {
+
+  private final Logger log = LoggerFactory.getLogger(getClass());
+
+  @Autowired
+  private UserRepository userRepository;
 
   @Autowired
   private CustomLoginHandler customLoginHandler;
@@ -25,12 +38,23 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
+  public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurity> {
+    @Override
+    public void configure(HttpSecurity http) throws Exception {
+      log.debug("디버그 : SecurityConfig의 configure");
+      AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
+      http.addFilter(new JwtAuthenticationFilter(authenticationManager));
+      http.addFilter(new JwtAuthorizationFilter(authenticationManager, userRepository));
+    }
+  }
+
   @Bean // 리턴되는게 container에 재 등록
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     // security 필터를 커스텀해서 사용
     // 다 닫고 필요한 것만 열어주기
 
     // iframe으로 페이지 여는거 거부
+    log.debug("디버그 : SecurityConfig의 filterChain");
     http.headers().frameOptions().disable();
 
     // 브라우저에서 로그인폼을 요청해서 응답할 때 특정 값(random hidden key)을 들고오도록 세팅
@@ -38,22 +62,27 @@ public class SecurityConfig {
     // postman으로 test 하기 위해 해제해줌
     http.csrf().disable();
 
+    http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    http.formLogin().disable();
+    http.httpBasic().disable();
+    http.apply(new MyCustomDsl());
+
     // 로그인이 되지 않으면 들어올 수 없음
     http.authorizeHttpRequests()
         .antMatchers("/api/transaction/**").authenticated()
         .antMatchers("/api/user/**").authenticated()
         .antMatchers("/api/account/**").authenticated()
         .antMatchers("/api/admin/**").hasRole("ROLE_" + UserEnum.ADMIN) // 관리자페이지 - 인증 + 권한
-        .anyRequest().permitAll() // 이 주소들 제외하고 다 허용
-        .and()
+        .anyRequest().permitAll(); // 이 주소들 제외하고 다 허용
+    // .and()
 
-        .formLogin() // 디폴트는 x-www-fom-urlencoded (post)
-        .usernameParameter("username")
-        .passwordParameter("password")
-        .loginProcessingUrl("/api/login") // /api/login 으로 가면 스프링 security 로그인폼
-        // 기본 디폴트는 user, 제공되는 password 로만 가능 -> 로그인 process 커스텀해줘야함
-        .successHandler(customLoginHandler)
-        .failureHandler(customLoginHandler); // 로그인 성공, 실패 시
+    // .formLogin() // 디폴트는 x-www-fom-urlencoded (post)
+    // .usernameParameter("username")
+    // .passwordParameter("password")
+    // .loginProcessingUrl("/api/login") // /api/login 으로 가면 스프링 security 로그인폼
+    // // 기본 디폴트는 user, 제공되는 password 로만 가능 -> 로그인 process 커스텀해줘야함
+    // .successHandler(customLoginHandler)
+    // .failureHandler(customLoginHandler); // 로그인 성공, 실패 시
 
     return http.build();
   }
