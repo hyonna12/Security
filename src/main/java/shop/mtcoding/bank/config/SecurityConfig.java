@@ -24,9 +24,6 @@ public class SecurityConfig {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  @Autowired
-  private UserRepository userRepository;
-
   @Bean
   public BCryptPasswordEncoder passwordEncoder() {
     // 해쉬로 로그인해야함
@@ -39,7 +36,7 @@ public class SecurityConfig {
       log.debug("디버그 : SecurityConfig의 configure");
       AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
       http.addFilter(new JwtAuthenticationFilter(authenticationManager));
-      http.addFilter(new JwtAuthorizationFilter(authenticationManager, userRepository));
+      http.addFilter(new JwtAuthorizationFilter(authenticationManager));
     }
   }
 

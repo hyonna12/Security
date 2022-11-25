@@ -1,7 +1,6 @@
 package shop.mtcoding.bank.config.jwt;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -23,20 +22,16 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import shop.mtcoding.bank.config.auth.LoginUser;
 import shop.mtcoding.bank.config.enums.UserEnum;
 import shop.mtcoding.bank.domain.user.User;
-import shop.mtcoding.bank.domain.user.UserRepository;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final AuthenticationManager authenticationManager;
-    private final UserRepository userRepository;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager,
-            UserRepository userRepository) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
         this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
     }
 
     @Override
