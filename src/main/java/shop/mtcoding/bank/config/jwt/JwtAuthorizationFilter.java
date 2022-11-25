@@ -15,13 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-
 import shop.mtcoding.bank.config.auth.LoginUser;
-import shop.mtcoding.bank.config.enums.UserEnum;
-import shop.mtcoding.bank.domain.user.User;
+import shop.mtcoding.bank.util.CustomResponseUtil;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -37,35 +32,44 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        log.debug("디버그2 : doFilterInternal 호출됨");
-        String header = request.getHeader(JwtProperties.HEADER_STRING);
-        if (header == null || !header.startsWith(JwtProperties.TOKEN_PREFIX)) {
-            log.debug("디버그2 : 토큰 잘못됨 header가 없거나, Bearer 없음");
-            chain.doFilter(request, response);
+
+        // 1. 헤더 검증 / 헤더 검증 실패하면 바로 return - 더이상 실행되지 않도록
+        if (!isheaderVerify(request, response)) {
             return;
         }
+
+        // 2. 토큰 파싱하기 (Bearer 없애기) - Bearer 은 토큰 헤더의 프로토콜
         String token = request.getHeader(JwtProperties.HEADER_STRING)
                 .replace(JwtProperties.TOKEN_PREFIX, "");
         log.debug("디버그2 : token" + token);
 
+        // 토큰 검증해서 userDetails 만듦
         try {
-            DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(token);
-            Long id = decodedJWT.getClaim("id").asLong();
-            String username = decodedJWT.getClaim("username").asString();
-            String role = decodedJWT.getClaim("role").asString();
-            User user = User.builder().id(id).username(username).role(UserEnum.valueOf(role)).build();
-            LoginUser loginUser = new LoginUser(user);
+            // 3. 토큰 검증
+            LoginUser loginUser = JwtProcess.verify(token);
 
+            // 4. 임시 세션 생성(한번 req-resp 할때까지만 필요한 세션) - 토큰 집어 넣음
             Authentication authentication = new UsernamePasswordAuthenticationToken(loginUser,
                     null, loginUser.getAuthorities());
-            // 강제로 토큰 집어 넣음
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            // 5. 다음 필터로 이동
             chain.doFilter(request, response);
             return;
         } catch (Exception e) {
-            e.printStackTrace();
+            CustomResponseUtil.fail(response, e.getMessage());
         }
     }
+
+    // 헤더 검증
+    private Boolean isheaderVerify(HttpServletRequest request, HttpServletResponse response) {
+        String header = request.getHeader(JwtProperties.HEADER_STRING);
+        if (header == null || !header.startsWith(JwtProperties.TOKEN_PREFIX)) {
+            CustomResponseUtil.fail(null, "토큰 헤더가 없습니다.");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
 }

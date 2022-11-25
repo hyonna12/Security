@@ -25,7 +25,12 @@ import shop.mtcoding.bank.config.auth.LoginUser;
 import shop.mtcoding.bank.dto.ResponseDto;
 import shop.mtcoding.bank.dto.UserReqDto.LoginReqDto;
 import shop.mtcoding.bank.dto.UserRespDto.LoginRespDto;
+import shop.mtcoding.bank.util.CustomResponseUtil;
 
+/*
+*   /api/user/**, /api/account/**, /api/transaction/**, /api/admin/**
+*   위 주소일때만 동작해야함.
+ */
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -61,38 +66,25 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException failed) throws IOException, ServletException {
 
-        ObjectMapper om = new ObjectMapper();
-        ResponseDto<?> responseDto = new ResponseDto<>("로그인 실패", null);
-        String responseBody = om.writeValueAsString(responseDto);
-        response.setContentType("application/json; charset=utf-8");
-        response.setStatus(400);
-        response.getWriter().println(responseBody);
-
+        CustomResponseUtil.fail(response, "로그인 실패");
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
             Authentication authResult) throws IOException, ServletException {
         log.debug("디버그 : successfulAuthentication 요청됨");
+        // 1. 세션에 있는 UserDetails 가져오기
         LoginUser loginUser = (LoginUser) authResult.getPrincipal();
 
-        String jwtToken = JWT.create()
-                .withSubject(loginUser.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
-                .withClaim("id", loginUser.getUser().getId())
-                .withClaim("username", loginUser.getUser().getUsername())
-                .withClaim("role", loginUser.getUser().getRole().name())
-                .sign(Algorithm.HMAC512(JwtProperties.SECRET));
+        // 2. 세션값으로 토큰 생성
+        String jwtToken = JwtProcess.create(loginUser);
 
+        // 3. 토큰을 헤더에 담기
         response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtToken);
-        LoginRespDto loginRespDto = new LoginRespDto(loginUser.getUser());
 
-        ObjectMapper om = new ObjectMapper();
-        ResponseDto<?> responseDto = new ResponseDto<>("로그인 성공", loginRespDto);
-        String responseBody = om.writeValueAsString(responseDto);
-        response.setContentType("application/json; charset=utf-8");
-        response.setStatus(200);
-        response.getWriter().println(responseBody);
+        // 4. 토큰 담아서 성공 응답하기
+        LoginRespDto loginRespDto = new LoginRespDto(loginUser.getUser());
+        CustomResponseUtil.success(response, loginRespDto);
     }
 
 }
