@@ -33,4 +33,9 @@ public class UserApiController {
     JoinRespDto joinResepDto = userService.회원가입(joinReqDto);
     return new ResponseEntity<>(new ResponseDto<>("회원가입 성공", joinResepDto), HttpStatus.CREATED);
   }
+
+  @GetMapping("/user/session")
+  public String userSession(@AuthenticationPrincipal LoginUser loginUser) {
+    return "username : " + loginUser.getUsername();
+  }
 }

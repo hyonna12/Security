@@ -16,7 +16,6 @@ import shop.mtcoding.bank.config.enums.UserEnum;
 import shop.mtcoding.bank.config.jwt.JwtAuthenticationFilter;
 import shop.mtcoding.bank.config.jwt.JwtAuthorizationFilter;
 import shop.mtcoding.bank.domain.user.UserRepository;
-import shop.mtcoding.bank.handler.CustomLoginHandler;
 
 // SecurityFilterChain
 // jwt 필터로 거르고 security 필터 걸러서 ds 들어옴
@@ -27,10 +26,6 @@ public class SecurityConfig {
 
   @Autowired
   private UserRepository userRepository;
-
-  @Autowired
-  private CustomLoginHandler customLoginHandler;
-  // config 에서는 autowired 사용하기
 
   @Bean
   public BCryptPasswordEncoder passwordEncoder() {
