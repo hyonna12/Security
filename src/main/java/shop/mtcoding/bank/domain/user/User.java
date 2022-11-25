@@ -32,7 +32,7 @@ public class User extends AudingTime {
   private String email;
 
   @Enumerated(EnumType.STRING)
-  @Column(unique = true, nullable = false)
+  @Column(nullable = false)
   private UserEnum role; // ADMIN, CUSTOMER
 
   @Builder
