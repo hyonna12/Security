@@ -4,11 +4,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.security.test.context.support.TestExecutionEvent;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,6 +19,10 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import shop.mtcoding.bank.config.dummy.DummyEntity;
+import shop.mtcoding.bank.domain.user.User;
+import shop.mtcoding.bank.domain.user.UserRepository;
+import shop.mtcoding.bank.dto.AccountReqDto.AccountSaveReqDto;
 import shop.mtcoding.bank.dto.UserReqDto.JoinReqDto;
 
 //@Transactional 도 ROLLBACK되지만 truncate 사용 - PK auto_increment 초기화 하기위해
@@ -23,7 +30,7 @@ import shop.mtcoding.bank.dto.UserReqDto.JoinReqDto;
 @ActiveProfiles("test")
 @AutoConfigureMockMvc // MOCKMVC 객체를 줌
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK) // 가짜환경으로 테스트 - 데이터가 없는 상태
-public class UserApiControllerTest {
+public class AccountApiControllerTest extends DummyEntity {
 
   private static final String APPLICATION_JSON_UTF8 = "application/json; charset=utf-8";
   private static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded; charset=utf-8";
@@ -35,24 +42,36 @@ public class UserApiControllerTest {
   @Autowired
   private ObjectMapper om;
 
+  @Autowired
+  private UserRepository userRepository;
+
+  @BeforeEach
+  public void setUp() {
+    User ssar = newUser("ssar");
+    userRepository.save(ssar);
+  }
+
+  @WithUserDetails(value = "ssar", setupBefore = TestExecutionEvent.TEST_EXECUTION)
   @Test
-  public void join_test() throws Exception {
+  public void save_test() throws Exception {
     // given
-    JoinReqDto joinReqDto = new JoinReqDto();
-    joinReqDto.setUsername("ssar");
-    joinReqDto.setPassword("1234");
-    joinReqDto.setEmail("ssar@nate.com");
-    String requestBody = om.writeValueAsString(joinReqDto);
+    AccountSaveReqDto accountSaveReqDto = new AccountSaveReqDto();
+    accountSaveReqDto.setNumber(1111L);
+    accountSaveReqDto.setPassword("1234");
+    accountSaveReqDto.setOwnerName("쌀");
+    String requestBody = om.writeValueAsString(accountSaveReqDto);
+    System.out.println("테스트 : " + requestBody);
 
     // when
     ResultActions resultActions = mvc
-        .perform(post("/api/join").content(requestBody)
+        .perform(post("/api/account").content(requestBody)
             .contentType(APPLICATION_JSON_UTF8));
     String responseBody = resultActions.andReturn().getResponse().getContentAsString();
-    System.out.println("디버그 : " + responseBody);
+    System.out.println("테스트 : " + responseBody);
 
     // then
     resultActions.andExpect(status().isCreated());
-    resultActions.andExpect(jsonPath("$.data.username").value("ssar"));
+    resultActions.andExpect(jsonPath("$.data.number").value(1111L));
+
   }
 }

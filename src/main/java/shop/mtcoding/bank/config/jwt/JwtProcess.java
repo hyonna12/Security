@@ -22,7 +22,7 @@ public class JwtProcess {
                 .withClaim("role", loginUser.getUser().getRole().name())
                 .sign(Algorithm.HMAC512(JwtProperties.SECRET));
 
-        return jwtToken;
+        return JwtProperties.TOKEN_PREFIX + jwtToken;
     }
 
     // 토큰 검증

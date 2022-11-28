@@ -18,8 +18,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import shop.mtcoding.bank.config.auth.LoginUser;
 
 /**
- * /api/user/**, /api/account/**, /api/transaction/**, /api/admin/**
- * 위 주소일때만 동작해야함.
+ * 모든 주소에서 동작함. (토큰 검증)
  */
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
