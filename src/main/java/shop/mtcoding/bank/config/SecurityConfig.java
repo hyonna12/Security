@@ -17,6 +17,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import shop.mtcoding.bank.config.enums.UserEnum;
 import shop.mtcoding.bank.config.jwt.JwtAuthenticationFilter;
 import shop.mtcoding.bank.config.jwt.JwtAuthorizationFilter;
+import shop.mtcoding.bank.util.CustomResponseUtil;
 
 // SecurityFilterChain
 // jwt 필터로 거르고 security 필터 걸러서 ds 들어옴
@@ -32,6 +33,7 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
+  // 모든 필터 등록은 여기서!!
   public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurity> {
     @Override
     public void configure(HttpSecurity http) throws Exception {
@@ -39,6 +41,7 @@ public class SecurityConfig {
       AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
       http.addFilter(new JwtAuthenticationFilter(authenticationManager));
       http.addFilter(new JwtAuthorizationFilter(authenticationManager));
+      // http.cors();
     }
   }
 
@@ -56,6 +59,12 @@ public class SecurityConfig {
     // postman으로 test 하기 위해 해제해줌
     http.csrf().disable();
 
+    // ExcpetionTranslationFilter (인증 권한 확인 필터)
+    http.exceptionHandling().authenticationEntryPoint(
+        (request, response, authException) -> {
+          CustomResponseUtil.forbidden(response, "권한없음");
+        });
+
     http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     http.formLogin().disable();
     http.httpBasic().disable();
@@ -68,15 +77,6 @@ public class SecurityConfig {
         .antMatchers("/api/account/**").authenticated()
         .antMatchers("/api/admin/**").hasRole("ROLE_" + UserEnum.ADMIN) // 관리자페이지 - 인증 + 권한
         .anyRequest().permitAll(); // 이 주소들 제외하고 다 허용
-    // .and()
-
-    // .formLogin() // 디폴트는 x-www-fom-urlencoded (post)
-    // .usernameParameter("username")
-    // .passwordParameter("password")
-    // .loginProcessingUrl("/api/login") // /api/login 으로 가면 스프링 security 로그인폼
-    // // 기본 디폴트는 user, 제공되는 password 로만 가능 -> 로그인 process 커스텀해줘야함
-    // .successHandler(customLoginHandler)
-    // .failureHandler(customLoginHandler); // 로그인 성공, 실패 시
 
     return http.build();
   }
@@ -86,6 +86,8 @@ public class SecurityConfig {
     CorsConfiguration configuration = new CorsConfiguration();// js의 http 요청 막음
     configuration.addAllowedHeader("*"); // 헤더
     configuration.addAllowedMethod("*"); // 허용할 메서드
+
+    // https://cotak.tistory.com/248
     configuration.addAllowedOriginPattern("*"); // 프론트 서버의 주소
     // configuration.addAllowedOrigin("*"); // 프론트 서버의 주소
     configuration.setAllowCredentials(true); // 클라이언트에서 쿠키, 인증헤더(인증 관련 정보) 허용

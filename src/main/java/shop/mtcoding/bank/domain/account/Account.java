@@ -28,9 +28,6 @@ public class Account extends AudingTime {
   @Column(unique = true, nullable = false, length = 50)
   private Long number;
 
-  @Column(nullable = false, length = 50)
-  private String ownerName; // 계좌주 실명
-
   @Column(nullable = false, length = 4)
   private String password;
 
@@ -46,14 +43,21 @@ public class Account extends AudingTime {
   private User user;
 
   @Builder
-  public Account(Long id, Long number, String ownerName, String password, Long balance, Boolean isActive, User user) {
+  public Account(Long id, Long number, String password, Long balance, Boolean isActive, User user) {
     this.id = id;
     this.number = number;
-    this.ownerName = ownerName;
     this.password = password;
     this.balance = balance;
     this.isActive = isActive;
     this.user = user;
   }
+
+  // entity에는 toString 만들지 않기
+  // @Override
+  // public String toString() {
+  // return "Account [id=" + id + ", number=" + number + ", password" + password +
+  // "]";
+
+  // }
 
 }
