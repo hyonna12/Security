@@ -10,6 +10,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import shop.mtcoding.bank.config.enums.UserEnum;
 import shop.mtcoding.bank.config.jwt.JwtAuthenticationFilter;
@@ -77,4 +80,19 @@ public class SecurityConfig {
 
     return http.build();
   }
+
+  @Bean
+  public CorsConfigurationSource configurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();// js의 http 요청 막음
+    configuration.addAllowedHeader("*"); // 헤더
+    configuration.addAllowedMethod("*"); // 허용할 메서드
+    configuration.addAllowedOriginPattern("*"); // 프론트 서버의 주소
+    // configuration.addAllowedOrigin("*"); // 프론트 서버의 주소
+    configuration.setAllowCredentials(true); // 클라이언트에서 쿠키, 인증헤더(인증 관련 정보) 허용
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); // 주소
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+  }
+  // @CrossOrigin 전역설정
 }

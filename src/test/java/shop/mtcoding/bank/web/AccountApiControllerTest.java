@@ -72,6 +72,5 @@ public class AccountApiControllerTest extends DummyEntity {
     // then
     resultActions.andExpect(status().isCreated());
     resultActions.andExpect(jsonPath("$.data.number").value(1111L));
-
   }
 }
