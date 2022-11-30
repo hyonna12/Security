@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import shop.mtcoding.bank.dto.UserReqDto.JoinReqDto;
 
 //@Transactional 도 ROLLBACK되지만 truncate 사용 - PK auto_increment 초기화 하기위해
-// @Sql("classpath:db/truncate.sql") // 롤백 대신 사용 (auto_increment 초기화 + 데이터 비우기)
+@Sql("classpath:db/truncate.sql") // 롤백 대신 사용 (auto_increment 초기화 + 데이터 비우기)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc // MOCKMVC 객체를 줌
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK) // 가짜환경으로 테스트 - 데이터가 없는 상태

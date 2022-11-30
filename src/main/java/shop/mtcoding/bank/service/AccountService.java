@@ -30,26 +30,22 @@ public class AccountService {
     // 본인계좌삭제하기
 
     // 본인계좌목록보기
-    @Transactional
     public AccountListRespDto 본인_계좌목록보기(Long userId) {
         List<Account> accountListPS = accountRepository.findByActiveUserId(userId);
         return new AccountListRespDto(accountListPS);
     }
 
     @Transactional
-    public AccountSaveRespDto 계좌생성(AccountSaveReqDto accountSaveReqDto, Long userid) {
+    public AccountSaveRespDto 계좌생성(AccountSaveReqDto accountSaveReqDto, Long userId) {
         // 실제 id 값이 있는지(회원있는지) 확인 - 유령데이터 들어옴
         // 1. 검증(권한, 값 검증)
-        User userPS = userRepository.findById(userid)
+        User userPS = userRepository.findById(userId)
                 .orElseThrow(
                         () -> new CustomApiException("탈퇴된 유저로 계좌를 생성할 수 없습니다.", HttpStatus.FORBIDDEN));
-
         // 2. 실행
         Account account = accountSaveReqDto.toEntity(userPS);
         Account accountPS = accountRepository.save(account);
-
         // 3. DTO 응답
         return new AccountSaveRespDto(accountPS);
     }
-
 }

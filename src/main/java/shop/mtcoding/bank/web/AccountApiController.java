@@ -29,19 +29,19 @@ public class AccountApiController {
     private final AccountService accountService;
 
     @GetMapping("/user/{userId}/account")
-    public ResponseEntity<?> List(@PathVariable Long userId, @AuthenticationPrincipal LoginUser loginUser) {
+    public ResponseEntity<?> list(@PathVariable Long userId, @AuthenticationPrincipal LoginUser loginUser) {
         if (userId != loginUser.getUser().getId()) { // 권한체크 - 세션의 id, userid가 같으면 목록보기
             throw new CustomApiException("권한이 없습니다.", HttpStatus.FORBIDDEN);
         }
         AccountListRespDto accountListRespDto = accountService.본인_계좌목록보기(userId);
-        return new ResponseEntity<>(new ResponseDto<>("계좌목록보기 성공", accountListRespDto), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDto<>("본인 계좌목록보기 성공", accountListRespDto), HttpStatus.OK);
     }
 
-    // /api/account/** 인증필요
+    // /api/account/** (인증 필요)
     @PostMapping("/account")
     public ResponseEntity<?> save(@RequestBody AccountSaveReqDto accountSaveReqDto,
             @AuthenticationPrincipal LoginUser loginUser) { // security context holder에 있는 값 가져옴
-        log.debug("디버그 : 계좌생성 서비스 호출됨");
+        log.debug("디버그 : AccountApiController save 호출됨");
         AccountSaveRespDto accountSaveRespDto = accountService.계좌생성(accountSaveReqDto, loginUser.getUser().getId());
         return new ResponseEntity<>(new ResponseDto<>("계좌생성완료", accountSaveRespDto), HttpStatus.CREATED);
     }
