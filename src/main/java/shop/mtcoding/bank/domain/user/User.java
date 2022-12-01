@@ -24,7 +24,7 @@ import shop.mtcoding.bank.domain.AudingTime;
 import shop.mtcoding.bank.domain.account.Account;
 
 @ToString
-@NoArgsConstructor(access = AccessLevel.PRIVATE) // new 못하게 걸어주기(hibernater만 new 하도록)
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // new 못하게 걸어주기(hibernater만 new 하도록)
 @Getter
 @Table(name = "users")
 @Entity

@@ -11,6 +11,12 @@ public class AccountReqDto {
 
     @Setter
     @Getter
+    public static class AccountDeleteReqDto {
+        private String password;
+    }
+
+    @Setter
+    @Getter
     public static class AccountSaveReqDto {
         private Long number;
         private String password;

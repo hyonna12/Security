@@ -2,6 +2,7 @@ package shop.mtcoding.bank.web;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,6 +26,7 @@ import shop.mtcoding.bank.domain.account.Account;
 import shop.mtcoding.bank.domain.account.AccountRepository;
 import shop.mtcoding.bank.domain.user.User;
 import shop.mtcoding.bank.domain.user.UserRepository;
+import shop.mtcoding.bank.dto.AccountReqDto.AccountDeleteReqDto;
 import shop.mtcoding.bank.dto.AccountReqDto.AccountSaveReqDto;
 
 //@Transactional 도 ROLLBACK되지만 truncate 사용 - PK auto_increment 초기화 하기위해
@@ -131,5 +133,26 @@ public class AccountApiControllerTest extends DummyEntity {
 
     resultActions.andExpect(status().isCreated());
     resultActions.andExpect(jsonPath("$.data.number").value(3333L));
+  }
+
+  @WithUserDetails(value = "ssar", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+  @Test
+  public void delete_test() throws Exception {
+    // given
+    Long accountId = 1L;
+    AccountDeleteReqDto accountDeleteReqDto = new AccountDeleteReqDto();
+    accountDeleteReqDto.setPassword("1234");
+    String requestBody = om.writeValueAsString(accountDeleteReqDto);
+    System.out.println("테스트 : " + requestBody);
+
+    // when
+    ResultActions resultActions = mvc
+        .perform(put("/api/account/" + accountId + "/delete")
+            .content(requestBody).contentType(APPLICATION_JSON_UTF8));
+    String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+    System.out.println("테스트 : " + responseBody);
+
+    // then
+    resultActions.andExpect(status().isOk());
   }
 }

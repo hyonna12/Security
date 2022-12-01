@@ -22,7 +22,7 @@ import shop.mtcoding.bank.config.enums.TransactionEnum;
 import shop.mtcoding.bank.domain.AudingTime;
 import shop.mtcoding.bank.domain.account.Account;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE) // new 못하게 걸어주기(hibernater만 new 하도록)
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // new 못하게 걸어주기(hibernater만 new 하도록)
 @Getter
 @Table(name = "transaction")
 @Entity
