@@ -41,7 +41,6 @@ public class SecurityConfig {
       AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
       http.addFilter(new JwtAuthenticationFilter(authenticationManager));
       http.addFilter(new JwtAuthorizationFilter(authenticationManager));
-      // http.cors();
     }
   }
 
@@ -58,6 +57,7 @@ public class SecurityConfig {
     // 서버에서 응답해준 페이지로 들어왔는지 확인(페이지에서 요청했는지, 페이지 없이 바로 요청했는지)
     // postman으로 test 하기 위해 해제해줌
     http.csrf().disable();
+    http.cors().configurationSource(configurationSource());
 
     // ExcpetionTranslationFilter (인증 권한 확인 필터)
     http.exceptionHandling().authenticationEntryPoint(
@@ -81,7 +81,6 @@ public class SecurityConfig {
     return http.build();
   }
 
-  @Bean
   public CorsConfigurationSource configurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();// js의 http 요청 막음
     configuration.addAllowedHeader("*"); // 헤더
