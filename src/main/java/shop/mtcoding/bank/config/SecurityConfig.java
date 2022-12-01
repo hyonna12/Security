@@ -85,6 +85,7 @@ public class SecurityConfig {
     CorsConfiguration configuration = new CorsConfiguration();// js의 http 요청 막음
     configuration.addAllowedHeader("*"); // 헤더
     configuration.addAllowedMethod("*"); // 허용할 메서드
+    // configuration.setAllowedMethods(List.of("GET", "POST", "PUT"));
 
     // https://cotak.tistory.com/248
     configuration.addAllowedOriginPattern("*"); // 프론트 서버의 주소

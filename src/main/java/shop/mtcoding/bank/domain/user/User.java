@@ -1,21 +1,29 @@
 package shop.mtcoding.bank.domain.user;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import shop.mtcoding.bank.config.enums.UserEnum;
 import shop.mtcoding.bank.domain.AudingTime;
+import shop.mtcoding.bank.domain.account.Account;
 
+@ToString
 @NoArgsConstructor(access = AccessLevel.PRIVATE) // new 못하게 걸어주기(hibernater만 new 하도록)
 @Getter
 @Table(name = "users")
@@ -36,6 +44,9 @@ public class User extends AudingTime {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private UserEnum role; // ADMIN, CUSTOMER
+
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private List<Account> accounts = new ArrayList<>();
 
   @Builder
   public User(Long id, String username, String password, String email, String fullName, UserEnum role) {
