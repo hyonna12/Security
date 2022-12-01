@@ -2,6 +2,8 @@ package shop.mtcoding.bank.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +24,7 @@ import shop.mtcoding.bank.dto.AccountRespDto.AccountSaveRespDto;
 @Transactional(readOnly = true)
 @Service
 public class AccountService {
-
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
 
@@ -61,6 +63,7 @@ public class AccountService {
     // 양방향 매핑
     public AccountListRespDtoV3 본인_계좌목록보기v3(Long userId) {
         User user = userRepository.findByActiveUserIdv3(userId);
+        log.debug("디버그 : " + user);
         return new AccountListRespDtoV3(user);
     }
 

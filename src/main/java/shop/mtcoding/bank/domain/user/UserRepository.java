@@ -11,7 +11,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
   @Query("select u from User u where username = :username") // jpql - 객체로 조회
   Optional<User> findByUsername(@Param("username") String username);
 
-  @Query("select u from User u join fetch u.accounts ac where ac.isActive = true and u.id = :userId")
+  @Query("select u from User u left join u.accounts ac on ac.isActive = true where u.id = :userId")
   User findByActiveUserIdv3(@Param("userId") Long userId);
 
 }
