@@ -56,7 +56,7 @@ public class AccountRepositoryTest extends DummyEntity {
         // when
         List<Account> accountList = accountRepository.findByActiveUserId(userId);
 
-        // then (실재값, 기대값)
+        // then (실제값, 기대값)
         assertThat(accountList.size()).isEqualTo(2);
         assertThat(accountList.get(0).getNumber()).isEqualTo(1111L);
     }
