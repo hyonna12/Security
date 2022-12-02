@@ -1,12 +1,60 @@
 package shop.mtcoding.bank.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.Setter;
 import shop.mtcoding.bank.domain.transaction.Transaction;
+import shop.mtcoding.bank.util.CustomDateUtil;
 
 public class TransactionRespDto {
+
+    @Setter
+    @Getter
+    public static class TransactionListRespDto { // dto를 list에 담기
+        private List<TransactionDto> transactions = new ArrayList<>();
+
+        public TransactionListRespDto(List<Transaction> transactions) {
+            this.transactions = transactions.stream().map((transaction) -> new TransactionDto(transaction))
+                    .collect(Collectors.toList());
+        }
+
+        @Setter
+        @Getter
+        public class TransactionDto {
+            private Long id;
+            private Long amount;
+            private Long balance;
+            private String gubun;
+            private String createdAt;
+            private String from;
+            private String to;
+
+            public TransactionDto(Transaction transaction) {
+                this.id = transaction.getId();
+                this.amount = transaction.getAmount();
+                this.balance = transaction.getWithdrawAccountBalance(); // 내 계좌
+                this.gubun = transaction.getGubun().getValue(); // 입금, 출금, 이체
+                this.createdAt = CustomDateUtil.toStringFormat(transaction.getCreatedAt());
+
+                if (gubun.equals("WITHDRAW")) {
+                    this.from = transaction.getWithdrawAccount().getNumber() + "";
+                    this.to = "ATM";
+                } else if (gubun.equals("DEPOSIT")) {
+                    this.from = "ATM";
+                    this.to = transaction.getDepositAccount().getNumber() + "";
+                } else {
+                    this.from = transaction.getWithdrawAccount().getNumber() + "";
+                    this.to = transaction.getDepositAccount().getNumber() + "";
+                }
+            }
+        }
+
+    }
 
     @Setter
     @Getter
